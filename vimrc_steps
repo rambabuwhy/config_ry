@@ -1,0 +1,29 @@
+git clone https://github.com/fatih/vim-go.git ~/.vim/pack/plugins/start/vim-go
+git clone https://github.com/fatih/vim-go.git ~/.local/share/nvim/site/pack/plugins/start/vim-go
+git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go
+cp /mnt/c/RambabuY/devryvm/.vimrc .
+vim .vimrc
+chown -R $USER:$USER $HOME/.vim/autoload/
+pwd
+vim .vimrc
+vim .vimrc
+pwd
+cd .vim
+mkdir autoload
+chown -R $USER:$USER $HOME/.vim/autoload/
+vim .vimrc
+ls -ler ~/.vim
+ls -lrt ~/.vim
+sudo chown -Rh yerajana:yerajana ~/.vim
+chmod -R a+rX,u+w,go-w ~/.vim
+vim .vimrc
+pwd
+cd ..
+vim .vimrc
+sudo apt install git
+apt-get update
+sudo apt-get update
+sudo apt install git
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+vim .vimrc
+mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
