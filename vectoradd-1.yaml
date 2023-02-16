@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: expose1-nvidia-nct-pod
+spec:
+  restartPolicy: Never
+  runtimeClassName: nvidia
+  hostPID: true
+  containers:
+    - name: expose1-nvidia-nct-pod
+      ### v1.11 : vectorAdd3
+      image: registry.prod.srv.da.nsn-rdnet.net/baseimage/expose-nvidia-nct:v1.11
+      ### v1.12 : vectorAdd1
+      #image: registry.prod.srv.da.nsn-rdnet.net/baseimage/expose-nvidia-nct:v1.13
+      resources:
+        limits:
+          nvidia.com/gpu: 1 # requesting 1 GPU

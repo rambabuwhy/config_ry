@@ -1,0 +1,297 @@
+
+
+export PROMPT_DIRTRIM=1
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$HOME/Downloads/istioctl-1.4.7
+
+
+#Auto Complete
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+    source /usr/share/bash-completion/bash_completion
+elif [ -f /etc/bash_completion ]; then
+    source /etc/bash_completion
+fi
+
+source <(kubectl completion bash)
+alias k=kubectl
+complete -F __start_kubectl k
+source ~/istioctl.bash
+
+
+alias rbashrun='cd /root && . .bashrc &&  cd -'
+alias rbash='cd /root && vim .bashrc_ram && cd -'
+alias rbashps2='cd /root && vim .bashrc_ps2 && cd -'
+alias rbashps1='cd /root && vim .bashrc_ps1 && cd -'
+alias rbashps1s='cd /root && vim .bashrc_ps1_simple && cd -'
+alias ra1='cd /root/DEVRY/ABACONE'
+alias ra3='cd /root/DEVRY/ABAC_THREE'
+alias rd1='cd /root/DEVRY/DEVONE && ls'
+alias rm='trash'
+alias rgb='git branch -vv'
+alias rgs='git status'
+alias rgl='git log --oneline'
+alias rgpr='git pull --rebase'
+alias rhelm='helm template rel1.1 . --debug --values ../../values/da/p-dev/values.yaml --values values.yaml --values ../../values/p-versions.yaml'
+alias rvim='vim ~/.vimrc'
+#alias rgo='cd /root/go/src/gitlabe2.ext.net.nokia.com/Nokia_DAaaS'
+alias rfindt='find . -type f |xargs grep -in'
+alias rfindn='find . -name'
+alias g='git'
+alias rnetstat='netstat -tulpn'
+
+alias rkpodcs='k get po | grep cacheservice'
+alias rkpodcms='k get po | grep configms'
+
+
+
+alias rd1cs='cd /root/DEVRY/DEVONE/microservice/cacheservice && ls'
+alias rd1cms='cd /root/DEVRY/DEVONE/microservice/config_ms && ls'
+alias rd1dco='cd /root/DEVRY/DEVONE/microservice/DynamicConfigOrchestrator && ls'
+alias rd1abac='cd /root/DEVRY/DEVONE/microservice/ABAC && ls'
+alias rd1ms='cd /root/DEVRY/DEVONE/microservice && ls'
+alias rd1msd='cd /root/DEVRY/DEVONE/ms_deploymentset && ls'
+alias rd1ds='cd /root/DEVRY/DEVONE/deploymentset && ls'
+alias rmy='cd /root/myprog/ && ls'
+
+
+
+
+
+rmake() {
+    make all >buildlog 2>&1 & 
+    tail -f buildlog
+    echo "----------------BUILD FINISHED-------------------"
+}
+rmakeall() {
+    rmake
+}
+
+rdu() {
+    echo "-----------------------------------------------------------"
+    if [ "$#" -eq 1 ]
+    then
+        du -hs $1/* | sort -rh | head -3
+        return
+    fi
+    echo "-----------------------------------------------------------"
+    du -hs /* | sort -rh | head -3
+    echo "-----------------------------------------------------------"
+    du -hs /root/* | sort -rh | head -3
+    echo "-----------------------------------------------------------"
+    du -hs /var/* | sort -rh | head -3
+    echo "-----------------------------------------------------------"
+    if [ "$#" -eq 1 ]
+    then
+        du -hs $1 | sort -rh | head -3
+    fi
+    echo "-----------------------------------------------------------"
+}
+#create new Directory
+rnewDir() {
+	rdate="`date +%d-%m-%Y-%H-%M-%S`"
+	mkdir /root/BKUP/$rdate
+	echo "Created: /root/BKUP/$rdate"
+	ls /root/BKUP
+}
+
+rhelp() {
+    echo "-----------------------------------------------------------"
+    echo "|rklog | rkpod | rked | rksh | rgvdiff | rkclist | rkns | rksd | rk9s |"
+    echo "|rnewDir | rmdev |  rmall | rd1cms | rd1cs | rmy | rd1 | ra3" 
+    echo "-----------------------------------------------------------"
+    echo "rk9s : rk9s <namespace> : k9s ui"
+    echo "rked : rked < pod name only, not with tag eg: configms> : edit /view yaml ex: rked configms or rked configms-canary"
+    echo "rkclist : rkclist <namespace> <pod> : list containers in pod"
+    echo "rkns : rkns : list all namespaces in cluster"
+    echo "rkpod : rkpod <namespace> {<search_string>}: list pods in namespace and serach pod"
+    echo "rksd : rksd <namespace>  <service name> : service details"
+    echo "rklog : rklog <namespace> <pod> {<container>} : pod / container logs"
+    echo "rksh: rksh <namespace> <pod> <containe>: enter into container"
+    echo "rgvdiff : rksh <filename> : vimdiff of git file "
+    echo "-----------------------------------------------------------"
+
+}
+
+
+rk9s(){
+    if [ "$#" -eq 1 ]
+    then
+        k9s --kubeconfig /root/.kube/config --namespace $1 
+    elif [ "$#" -eq 0 ]
+    then
+        k9s --kubeconfig /root/.kube/config --namespace istio-system
+    else
+        echo "rk9s <namespace>"
+    fi
+}
+rked() {
+    if [ "$#" -eq 1 ]
+    then
+        kubectl edit deploy $1 
+    else
+        echo "rked <service name>"
+    fi
+}
+
+rkclist(){
+    if [ "$#" -eq 2 ]
+    then
+        kubectl get -n $1 pods $2 -o="custom-columns=NameSpace:.metadata.namespace,NAME:.metadata.name,INIT-CONTAINERS:.spec.initContainers[*].name,CONTAINERS:.spec.containers[*].name, Status:status.phase"
+    else
+        echo "rkclist <namespace> <pod>"
+    fi
+}
+
+rkns(){
+    if [ "$#" -eq 0 ]
+    then
+        #echo "1"
+        kubectl get namespaces
+    else
+        echo "rkns"
+    fi
+}
+rkpodname() {
+    if [ "$#" -eq 2 ]
+    then
+        k get po -l app=$2 -o jsonpath={.items..metadata.name} -n $1
+    else
+        echo "rkpodname <namespace> <podname>"
+    fi
+}
+rkpod() {
+    
+    if [ "$#" -eq 1 ]
+    then
+
+        if [ "$1" == "cs" ]
+        then
+            rkpodcs
+        elif [ "$1" == "cms" ]
+        then
+            rkpodcms
+        else
+            kubectl get pods -n $1
+        fi
+    elif [ "$#" -eq 2 ]
+    then
+        #echo "2"
+        kubectl get pods -l app=$2 -n $1 
+    else
+        #echo "3"
+        echo "rkpodcs | rkpodcms"
+        echo "rkpod <namespace> {<search_string>}"
+    fi   
+}
+
+rksd() {
+    if [ "$#" -eq 1 ]
+    then
+        kubectl get svc -n $1
+    elif [ "$#" -eq 2 ]
+    then
+        kubectl get svc -n $1 -l app=$2
+    else
+        echo "rksd <namespace>  <service name>"
+    fi
+}
+rklog() {
+
+    if [ "$#" -eq 2 ]
+    then
+        kubectl logs $2 -f --since=1m -n $1
+    elif [ "$#" -eq 3 ]
+    then
+        kubectl logs $2 -c $3 -f --since=1m -n $1
+    else
+        echo "rklog <namespace> <pod> {<container>}"
+    fi
+}
+
+rksh() {
+    if [ "$#" -eq 3 ]
+    then
+        kubectl exec -it $2 -n $1 -c $3 sh
+    else
+        echo "rksh <namespace> <pod> <containe>"
+    fi
+}
+
+rgvdiff() {
+    if [ "$#" -eq 1 ]
+    then
+        if [ "$1" ==  "all" ]
+        then
+            git difftool --tool=vimdiff --no-prompt 
+        else
+            git difftool --tool=vimdiff --no-prompt $1
+        fi
+    else
+        echo "rgvdiff <File Name>"
+    fi
+}
+
+#ps1 settings
+rps() {
+    if [ "$#" -eq 1 ]
+    then
+        if [ "$1" -eq 1 ]
+        then
+            echo "*** PS1 Settings Applied ***"
+            . ~/.bashrc_ps1
+        elif [ "$1" -eq 2 ]
+        then
+            echo "*** PS2 Settings Applied ***"
+            . ~/.bashrc_ps2 2
+        elif [ "$1" -eq 3 ]
+        then
+            echo "*** PS3 Settings Applied ***"
+            . ~/.bashrc_ps2 3
+        elif [ "$1" -eq 4 ]
+        then
+            echo "*** PS1_SIMPLE Settings Applied ***"
+            . ~/.bashrc_ps1_simple 
+        else
+            echo " arg 1 or 2 "
+        fi
+    else
+        echo "rps <1/2>"
+
+    fi
+}
+
+rc() {
+    clear
+}
+
+rh() {
+    rhelp
+}
+
+rgd() {
+
+    rgvdiff $1
+}
+
+rgo111() {
+
+    if [ "$1" == "off" ]
+    then
+        export GO111MODULE=off
+    elif [ "$1" == "on" ]
+    then
+        export GO111MODULE=on
+    else
+        echo "Invalid Option on/off"
+    fi
+
+    echo $GO111MODULE
+
+}
+
+rps 4
+
+echo "*** Ram Settings Applied ***"
